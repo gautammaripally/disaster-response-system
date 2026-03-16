@@ -4,7 +4,7 @@ import Icon from '../../../components/AppIcon';
 import Image from '../../../components/AppImage';
 import Button from '../../../components/ui/Button';
 
-const ModuleCard = ({ module, userProgress = {} }) => {
+const ModuleCard = ({ module, userProgress = {}, onOpen = null }) => {
   const navigate = useNavigate();
   
   const progress = userProgress?.[module.id]?.percentage || 0;
@@ -31,15 +31,19 @@ const ModuleCard = ({ module, userProgress = {} }) => {
     return 'bg-muted-foreground';
   };
 
-  const handleModuleClick = () => {
-  if (module.id === 'fire-safety') {
-    navigate('/disaster-learning-modules/fire-safety');
-  } else if (module.id === 'earthquake-safety'){    
-    navigate('/disaster-learning-modules/earthquake-safety');
-  }else {
-    navigate(`/disaster-learning-modules/${module.id}`);
-  }
-};
+  const handleModuleClick = async () => {
+    if (onOpen) {
+      await onOpen(module.id);
+    }
+
+    if (module.id === 'fire-safety') {
+      navigate('/disaster-learning-modules/fire-safety');
+    } else if (module.id === 'earthquake-safety') {
+      navigate('/disaster-learning-modules/earthquake-safety');
+    } else {
+      navigate(`/disaster-learning-modules/${module.id}`);
+    }
+  };
 
   return (
     <div className="bg-card border border-border rounded-lg shadow-soft hover:shadow-elevated transition-smooth overflow-hidden group">

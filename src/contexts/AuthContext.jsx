@@ -12,14 +12,22 @@ const normalizeUser = (firebaseUser) => {
   }
 
   const storedUser = localStorage.getItem(USER_STORAGE_KEY);
-  const parsedStoredUser = storedUser ? JSON.parse(storedUser) : null;
+  let parsedStoredUser = null;
+
+  if (storedUser) {
+    try {
+      parsedStoredUser = JSON.parse(storedUser);
+    } catch {
+      parsedStoredUser = null;
+    }
+  }
 
   return {
     uid: firebaseUser.uid,
     name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
     email: firebaseUser.email || '',
     photoURL: firebaseUser.photoURL || '',
-    role: parsedStoredUser?.role || 'student',
+    role: parsedStoredUser?.role || 'public',
     provider: firebaseUser.providerData?.[0]?.providerId || 'google.com',
     loginTime: new Date().toISOString()
   };

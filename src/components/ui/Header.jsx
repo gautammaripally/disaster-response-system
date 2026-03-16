@@ -55,6 +55,11 @@ const Header = ({ userRole = 'student', alertCount = 0, onMenuToggle }) => {
     navigate('/login');
   };
 
+  const handleProfileNavigation = () => {
+    navigate('/profile');
+    setIsMobileMenuOpen(false);
+  };
+
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
     if (onMenuToggle) {
@@ -94,70 +99,74 @@ const Header = ({ userRole = 'student', alertCount = 0, onMenuToggle }) => {
             <Logo />
           </div>
 
-          <nav className="hidden md:flex items-center space-x-1">
-            {navigationItems?.map((item) => {
-              const isActive = isActivePath(item?.path, item?.subItems);
+          <div className="hidden md:flex items-center space-x-2">
+            <nav className="flex items-center space-x-1">
+              {navigationItems?.map((item) => {
+                const isActive = isActivePath(item?.path, item?.subItems);
 
-              return (
-                <div key={item?.path} className="relative group">
-                  <Button
-                    variant={isActive ? 'default' : 'ghost'}
-                    className={`
-                      relative px-4 py-2 text-sm font-medium transition-quick
-                      ${item?.isEmergency ? 'hover:bg-error/10' : ''}
-                      ${isActive ? 'bg-primary text-primary-foreground' : 'text-foreground hover:text-primary'}
-                    `}
-                    onClick={() => handleNavigation(item?.path)}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <Icon
-                        name={item?.icon}
-                        size={18}
-                        color={item?.isEmergency && hasActiveAlerts ? 'var(--color-error)' : 'currentColor'}
-                        className={hasActiveAlerts && item?.isEmergency ? 'animate-alert-pulse' : ''}
-                      />
-                      <span>{item?.label}</span>
-                      {item?.badge > 0 && (
-                        <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-error rounded-full animate-alert-pulse">
-                          {item?.badge > 99 ? '99+' : item?.badge}
-                        </span>
-                      )}
-                    </div>
-                  </Button>
-
-                  {item?.subItems && (
-                    <div className="absolute left-0 mt-1 w-56 bg-popover border border-border rounded-lg shadow-elevated opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-quick z-110">
-                      <div className="py-2">
-                        {item?.subItems?.map((subItem) => (
-                          <button
-                            key={subItem?.path}
-                            onClick={() => handleNavigation(subItem?.path)}
-                            className={`
-                              w-full text-left px-4 py-2 text-sm transition-quick
-                              ${location?.pathname === subItem?.path ? 'bg-primary/10 text-primary font-medium' : 'text-popover-foreground hover:bg-muted'}
-                            `}
-                          >
-                            {subItem?.label}
-                          </button>
-                        ))}
+                return (
+                  <div key={item?.path} className="relative group">
+                    <Button
+                      variant={isActive ? 'default' : 'ghost'}
+                      className={`
+                        relative px-4 py-2 text-sm font-medium transition-quick
+                        ${item?.isEmergency ? 'hover:bg-error/10' : ''}
+                        ${isActive ? 'bg-primary text-primary-foreground' : 'text-foreground hover:text-primary'}
+                      `}
+                      onClick={() => handleNavigation(item?.path)}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <Icon
+                          name={item?.icon}
+                          size={18}
+                          color={item?.isEmergency && hasActiveAlerts ? 'var(--color-error)' : 'currentColor'}
+                          className={hasActiveAlerts && item?.isEmergency ? 'animate-alert-pulse' : ''}
+                        />
+                        <span>{item?.label}</span>
+                        {item?.badge > 0 && (
+                          <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-error rounded-full animate-alert-pulse">
+                            {item?.badge > 99 ? '99+' : item?.badge}
+                          </span>
+                        )}
                       </div>
+                    </Button>
+
+                    {item?.subItems && (
+                      <div className="absolute right-0 mt-1 w-56 bg-popover border border-border rounded-lg shadow-elevated opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-quick z-110">
+                        <div className="py-2">
+                          {item?.subItems?.map((subItem) => (
+                            <button
+                              key={subItem?.path}
+                              onClick={() => handleNavigation(subItem?.path)}
+                              className={`
+                                w-full text-left px-4 py-2 text-sm transition-quick
+                                ${location?.pathname === subItem?.path ? 'bg-primary/10 text-primary font-medium' : 'text-popover-foreground hover:bg-muted'}
+                              `}
+                            >
+                              {subItem?.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 text-xs text-white bg-gray-900 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-quick pointer-events-none whitespace-nowrap">
+                      {item?.description}
                     </div>
-                  )}
-
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 text-xs text-white bg-gray-900 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-quick pointer-events-none whitespace-nowrap">
-                    {item?.description}
                   </div>
-                </div>
-              );
-            })}
-          </nav>
-
-          <div className="hidden md:flex items-center space-x-3">
+                );
+              })}
+            </nav>
             {user && (
-              <div className="text-right">
-                <div className="text-sm font-medium text-foreground">{user?.name}</div>
-                <div className="text-xs text-muted-foreground capitalize">{effectiveRole}</div>
-              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleProfileNavigation}
+                className="flex items-center gap-2"
+              >
+                <Icon name="User" size={16} />
+                <span>{user?.name}</span>
+              </Button>
             )}
             <Button
               variant="outline"
@@ -191,7 +200,13 @@ const Header = ({ userRole = 'student', alertCount = 0, onMenuToggle }) => {
               {user && (
                 <div className="px-4 pb-2">
                   <div className="rounded-lg border border-border bg-muted/50 p-3">
-                    <div className="font-medium text-foreground">{user?.name}</div>
+                    <button
+                      type="button"
+                      onClick={handleProfileNavigation}
+                      className="font-medium text-foreground hover:text-primary transition-quick"
+                    >
+                      {user?.name}
+                    </button>
                     <div className="text-xs text-muted-foreground">{user?.email}</div>
                     <div className="text-xs text-muted-foreground capitalize mt-1">{effectiveRole}</div>
                   </div>

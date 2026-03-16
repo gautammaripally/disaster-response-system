@@ -15,6 +15,7 @@ const CredentialsHelper = () => {
   const setupItems = [
     'Add your Firebase web app credentials to the VITE_FIREBASE_* variables in .env.',
     'Enable Google sign-in in Firebase Authentication.',
+    'Create a Firestore database for profiles, progress, and live alerts.',
     'Add your local and production domains to Firebase authorized domains.',
     'Restart the Vite dev server after updating .env.'
   ];

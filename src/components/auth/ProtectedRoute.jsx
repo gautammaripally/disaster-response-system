@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useAppData } from '../../contexts/AppDataContext';
 
 const FullPageLoader = () => (
   <div className="min-h-screen flex items-center justify-center bg-background px-4">
@@ -13,9 +14,10 @@ const FullPageLoader = () => (
 
 export const ProtectedRoute = () => {
   const { isAuthenticated, authLoading } = useAuth();
+  const { dataLoading, isProfileComplete } = useAppData();
   const location = useLocation();
 
-  if (authLoading) {
+  if (authLoading || dataLoading) {
     return <FullPageLoader />;
   }
 
@@ -23,18 +25,23 @@ export const ProtectedRoute = () => {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
+  if (!isProfileComplete && location.pathname !== '/onboarding' && location.pathname !== '/profile') {
+    return <Navigate to="/onboarding" replace />;
+  }
+
   return <Outlet />;
 };
 
 export const PublicOnlyRoute = () => {
   const { isAuthenticated, authLoading } = useAuth();
+  const { dataLoading, isProfileComplete } = useAppData();
 
-  if (authLoading) {
+  if (authLoading || dataLoading) {
     return <FullPageLoader />;
   }
 
   if (isAuthenticated) {
-    return <Navigate to="/disaster-learning-modules" replace />;
+    return <Navigate to={isProfileComplete ? '/disaster-learning-modules' : '/onboarding'} replace />;
   }
 
   return <Outlet />;

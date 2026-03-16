@@ -34,6 +34,8 @@ import FireSafetyDosandDonts from './pages/disaster-learning-modules/components/
 import PreparednessAssessment from './pages/preparedness-assessment';
 import VirtualEmergencyDrills from './pages/virtual-emergency-drills';
 import RealTimeAlerts from './pages/real-time-alerts';
+import ProfilePage from './pages/profile';
+import OnboardingPage from './pages/onboarding';
 import { ProtectedRoute, PublicOnlyRoute } from './components/auth/ProtectedRoute';
 
 const Routes = () => {
@@ -47,6 +49,8 @@ const Routes = () => {
         </Route>
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<Navigate to="/disaster-learning-modules" replace />} />
+          <Route path="/onboarding" element={<OnboardingPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/disaster-learning-modules" element={<DisasterLearningModules />} />
           <Route path="/disaster-learning-modules/fire-safety" element={<FireSafety />} />

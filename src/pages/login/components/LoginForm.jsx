@@ -85,7 +85,7 @@ const LoginForm = () => {
               <Icon name="ShieldCheck" size={18} className="text-primary mt-0.5" />
               <div className="text-sm text-muted-foreground space-y-1">
                 <p>Your session is managed by Firebase Authentication.</p>
-                <p>Users who sign in are currently treated as `student` by default until role management is connected.</p>
+                <p>Users who sign in are currently treated as `public` by default until role management is connected.</p>
               </div>
             </div>
           </div>

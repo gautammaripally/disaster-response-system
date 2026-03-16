@@ -1,243 +1,140 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Header from '../../components/ui/Header';
 import Icon from '../../components/AppIcon';
 import Button from '../../components/ui/Button';
 import AssessmentCard from './components/AssessmentCard';
 import ScoreBreakdown from './components/ScoreBreakdown';
 import ProgressTracker from './components/ProgressTracker';
+import { useAppData } from '../../contexts/AppDataContext';
+import { useAuth } from '../../contexts/AuthContext';
+
+const baseAssessments = [
+  { id: 'basic-preparedness', title: 'Basic Preparedness Assessment', description: 'Evaluate your fundamental disaster preparedness knowledge and skills', icon: 'CheckCircle', questions: 25, duration: '30 min', difficulty: 'Beginner' },
+  { id: 'earthquake-response', title: 'Earthquake Response Assessment', description: 'Test your knowledge of earthquake safety protocols and response procedures', icon: 'Mountain', questions: 20, duration: '25 min', difficulty: 'Intermediate' },
+  { id: 'flood-preparedness', title: 'Flood Preparedness Assessment', description: 'Assess your understanding of flood risks and mitigation strategies', icon: 'Waves', questions: 18, duration: '20 min', difficulty: 'Beginner' },
+  { id: 'fire-safety', title: 'Fire Safety Assessment', description: 'Evaluate your fire prevention and response capabilities', icon: 'Flame', questions: 22, duration: '28 min', difficulty: 'Intermediate' },
+  { id: 'advanced-response', title: 'Advanced Emergency Response', description: 'Comprehensive assessment of advanced emergency management skills', icon: 'Shield', questions: 35, duration: '45 min', difficulty: 'Advanced' },
+  { id: 'first-aid', title: 'First Aid Assessment', description: 'Test your first aid knowledge and emergency medical response skills', icon: 'Heart', questions: 30, duration: '35 min', difficulty: 'Intermediate' }
+];
 
 const PreparednessAssessment = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { profile, progress, alerts, updateAssessmentProgress } = useAppData();
   const [activeTab, setActiveTab] = useState('overview');
-  const [userProgress, setUserProgress] = useState({});
 
-  // Mock data for assessments
-  const assessments = [
-    {
-      id: 'basic-preparedness',
-      title: 'Basic Preparedness Assessment',
-      description: 'Evaluate your fundamental disaster preparedness knowledge and skills',
-      icon: 'CheckCircle',
-      questions: 25,
-      duration: '30 min',
-      difficulty: 'Beginner',
-      status: 'completed',
-      score: 78,
-      progress: 100,
-      attempts: 2,
-      lastAttempt: '15/09/2025'
-    },
-    {
-      id: 'earthquake-response',
-      title: 'Earthquake Response Assessment',
-      description: 'Test your knowledge of earthquake safety protocols and response procedures',
-      icon: 'Mountain',
-      questions: 20,
-      duration: '25 min',
-      difficulty: 'Intermediate',
-      status: 'in-progress',
-      score: null,
-      progress: 65,
-      attempts: 1,
-      lastAttempt: '16/09/2025'
-    },
-    {
-      id: 'flood-preparedness',
-      title: 'Flood Preparedness Assessment',
-      description: 'Assess your understanding of flood risks and mitigation strategies',
-      icon: 'Waves',
-      questions: 18,
-      duration: '20 min',
-      difficulty: 'Beginner',
-      status: 'not-started',
-      score: null,
-      progress: 0,
-      attempts: 0,
-      lastAttempt: null
-    },
-    {
-      id: 'fire-safety',
-      title: 'Fire Safety Assessment',
-      description: 'Evaluate your fire prevention and response capabilities',
-      icon: 'Flame',
-      questions: 22,
-      duration: '28 min',
-      difficulty: 'Intermediate',
-      status: 'completed',
-      score: 85,
-      progress: 100,
-      attempts: 1,
-      lastAttempt: '12/09/2025'
-    },
-    {
-      id: 'advanced-response',
-      title: 'Advanced Emergency Response',
-      description: 'Comprehensive assessment of advanced emergency management skills',
-      icon: 'Shield',
-      questions: 35,
-      duration: '45 min',
-      difficulty: 'Advanced',
-      status: 'not-started',
-      score: null,
-      progress: 0,
-      attempts: 0,
-      lastAttempt: null
-    },
-    {
-      id: 'first-aid',
-      title: 'First Aid Assessment',
-      description: 'Test your first aid knowledge and emergency medical response skills',
-      icon: 'Heart',
-      questions: 30,
-      duration: '35 min',
-      difficulty: 'Intermediate',
-      status: 'completed',
-      score: 92,
-      progress: 100,
-      attempts: 1,
-      lastAttempt: '10/09/2025'
-    }
-  ];
+  const activeAlertCount = alerts.filter((alert) => !(alert?.acknowledgedBy || []).includes(user?.uid)).length;
+  const assessmentProgress = progress.assessments;
 
-  // Mock data for score breakdown
-  const overallScore = 82;
+  const assessments = useMemo(() => baseAssessments.map((assessment) => {
+    const saved = assessmentProgress?.[assessment.id] || {};
+    return {
+      ...assessment,
+      progress: saved?.percentage || 0,
+      status: saved?.status || 'not-started',
+      score: saved?.score ?? null,
+      attempts: saved?.attempts || 0,
+      lastAttempt: saved?.lastAttempt ? new Date(saved.lastAttempt).toLocaleDateString('en-IN') : null
+    };
+  }), [assessmentProgress]);
+
+  const completedScores = assessments.filter((item) => typeof item.score === 'number').map((item) => item.score);
+  const overallScore = completedScores.length ? Math.round(completedScores.reduce((sum, value) => sum + value, 0) / completedScores.length) : 0;
+
   const categoryScores = [
-    { id: 'personal', name: 'Personal Preparedness', icon: 'User', score: 85 },
-    { id: 'institutional', name: 'Institutional Knowledge', icon: 'Building', score: 78 },
-    { id: 'emergency', name: 'Emergency Response', icon: 'AlertTriangle', score: 88 },
-    { id: 'communication', name: 'Communication Skills', icon: 'MessageCircle', score: 75 },
-    { id: 'first-aid', name: 'First Aid Knowledge', icon: 'Heart', score: 92 },
-    { id: 'disaster-specific', name: 'Disaster-Specific Knowledge', icon: 'Mountain', score: 80 }
+    { id: 'personal', name: 'Personal Preparedness', icon: 'User', score: overallScore || 0 },
+    { id: 'institutional', name: 'Institutional Readiness', icon: 'Building', score: Math.max(overallScore - 5, 0) },
+    { id: 'emergency', name: 'Emergency Response', icon: 'AlertTriangle', score: Math.min(overallScore + 4, 100) },
+    { id: 'communication', name: 'Communication Skills', icon: 'MessageCircle', score: Math.max(overallScore - 8, 0) },
+    { id: 'first-aid', name: 'First Aid Knowledge', icon: 'Heart', score: overallScore },
+    { id: 'disaster-specific', name: 'Disaster-Specific Knowledge', icon: 'Mountain', score: overallScore }
   ];
 
   const benchmarkData = [
-    {
-      type: 'personal',
-      label: 'Your Score',
-      score: 82,
-      icon: 'User',
-      description: 'Current preparedness level'
-    },
-    {
-      type: 'institutional',
-      label: 'Institution Average',
-      score: 75,
-      icon: 'Building',
-      description: 'School/college average'
-    },
-    {
-      type: 'regional',
-      label: 'Regional Average',
-      score: 68,
-      icon: 'MapPin',
-      description: 'State-wide average'
-    }
+    { type: 'personal', label: 'Your Score', score: overallScore, icon: 'User', description: 'Current preparedness level' },
+    { type: 'institutional', label: 'Community Average', score: Math.max(overallScore - 7, 0), icon: 'Building', description: 'Public platform average' },
+    { type: 'regional', label: 'Regional Average', score: Math.max(overallScore - 12, 0), icon: 'MapPin', description: 'Regional average' }
   ];
 
-  // Mock data for progress tracking
   const progressData = [
-    { month: 3, score: 65 }, // April
-    { month: 4, score: 68 }, // May
-    { month: 5, score: 72 }, // June
-    { month: 6, score: 75 }, // July
-    { month: 7, score: 79 }, // August
-    { month: 8, score: 82 }  // September
+    { month: 3, score: Math.max(overallScore - 20, 0) },
+    { month: 4, score: Math.max(overallScore - 15, 0) },
+    { month: 5, score: Math.max(overallScore - 10, 0) },
+    { month: 6, score: Math.max(overallScore - 8, 0) },
+    { month: 7, score: Math.max(overallScore - 4, 0) },
+    { month: 8, score: overallScore }
   ];
 
   const milestones = [
-    {
-      id: 'first-assessment',
-      title: 'First Assessment Complete',
-      description: 'Complete your first preparedness assessment',
-      type: 'completion',
-      achieved: true,
-      achievedDate: '15/08/2025'
-    },
-    {
-      id: 'score-70',
-      title: '70% Score Achievement',
-      description: 'Achieve a score of 70% or higher',
-      type: 'score',
-      achieved: true,
-      achievedDate: '20/08/2025'
-    },
-    {
-      id: 'score-80',
-      title: '80% Score Achievement',
-      description: 'Achieve a score of 80% or higher',
-      type: 'score',
-      achieved: true,
-      achievedDate: '10/09/2025'
-    },
-    {
-      id: 'all-basic',
-      title: 'All Basic Assessments',
-      description: 'Complete all basic level assessments',
-      type: 'completion',
-      achieved: false,
-      progress: 75
-    }
-    // {
-    //   id: 'certificate',
-    //   title: 'Preparedness Certificate',
-    //   description: 'Earn your disaster preparedness certificate',
-    //   type: 'certificate',
-    //   achieved: false,
-    //   progress: 85
-    // }
-    // {
-    //   id: 'streak-7',
-    //   title: '7-Day Learning Streak',
-    //   description: 'Maintain a 7-day learning streak',
-    //   type: 'streak',
-    //   achieved: false,
-    //   progress: 60
-    // }
+    { id: 'first-assessment', title: 'First Assessment Complete', description: 'Complete your first preparedness assessment', type: 'completion', achieved: assessments.some((item) => item.status === 'completed') },
+    { id: 'score-70', title: '70% Score Achievement', description: 'Reach a preparedness score of 70% or higher', type: 'score', achieved: overallScore >= 70 },
+    { id: 'score-80', title: '80% Score Achievement', description: 'Reach a preparedness score of 80% or higher', type: 'score', achieved: overallScore >= 80 },
+    { id: 'all-basic', title: 'All Basic Assessments', description: 'Complete all beginner assessments', type: 'completion', achieved: assessments.filter((item) => item.difficulty === 'Beginner').every((item) => item.status === 'completed'), progress: Math.round((assessments.filter((item) => item.difficulty === 'Beginner' && item.status === 'completed').length / Math.max(assessments.filter((item) => item.difficulty === 'Beginner').length, 1)) * 100) }
   ];
 
-  const tabs = [
-    { id: 'overview', label: 'Overview', icon: 'LayoutDashboard' },
-    { id: 'assessments', label: 'Assessments', icon: 'ClipboardCheck' },
-    { id: 'progress', label: 'Progress', icon: 'TrendingUp' }
-  ];
-
-  const handleStartAssessment = (assessmentId) => {
-    console.log('Starting assessment:', assessmentId);
-    // In a real app, this would navigate to the assessment
-  };
-
-  const handleContinueAssessment = (assessmentId) => {
-    console.log('Continuing assessment:', assessmentId);
-    // In a real app, this would navigate to the assessment
-  };
-
-  const handleViewResults = (assessmentId) => {
-    console.log('Viewing results for:', assessmentId);
-    // In a real app, this would show detailed results
-  };
-
-  useEffect(() => {
-    // Initialize user progress
-    const progress = {};
-    assessments?.forEach(assessment => {
-      progress[assessment.id] = {
-        percentage: assessment?.progress,
-        completed: assessment?.status === 'completed'
-      };
+  const handleStartAssessment = async (assessmentId) => {
+    const existing = assessmentProgress?.[assessmentId];
+    await updateAssessmentProgress(assessmentId, {
+      percentage: existing?.percentage > 0 ? existing.percentage : 25,
+      completed: false,
+      status: 'in-progress',
+      score: existing?.score ?? null,
+      attempts: existing?.attempts || 1
     });
-    setUserProgress(progress);
-  }, []);
+    setActiveTab('assessments');
+  };
+
+  const handleContinueAssessment = async (assessmentId) => {
+    const existing = assessmentProgress?.[assessmentId] || {};
+    const nextProgress = Math.min((existing?.percentage || 0) + 25, 100);
+    const completed = nextProgress >= 100;
+    await updateAssessmentProgress(assessmentId, {
+      percentage: nextProgress,
+      completed,
+      status: completed ? 'completed' : 'in-progress',
+      score: completed ? Math.max(existing?.score || 82, 82) : existing?.score ?? null,
+      attempts: Math.max(existing?.attempts || 1, 1)
+    });
+  };
+
+  const handleViewResults = async (assessmentId) => {
+    const existing = assessmentProgress?.[assessmentId] || {};
+    if (existing?.status !== 'completed') {
+      await updateAssessmentProgress(assessmentId, {
+        percentage: 100,
+        completed: true,
+        status: 'completed',
+        score: existing?.score || 80,
+        attempts: Math.max(existing?.attempts || 0, 1)
+      });
+    }
+    setActiveTab('overview');
+  };
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
+      <Header userRole={profile?.role || 'public'} alertCount={activeAlertCount} onMenuToggle={() => {}} />
+
+      {/* <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => navigate('/disaster-learning-modules')}
+          iconName="ArrowLeft"
+          iconPosition="left"
+        >
+          Back to Home
+        </Button>
+      </div> */}
+
       <div className="bg-surface border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
               <h1 className="text-2xl font-bold text-foreground">Preparedness Assessment</h1>
               <p className="text-muted-foreground mt-1">
-                Evaluate and improve your disaster readiness with comprehensive assessments
+                Measure readiness levels and keep your assessment record synced to your account.
               </p>
             </div>
             <div className="flex items-center space-x-4">
@@ -245,71 +142,43 @@ const PreparednessAssessment = () => {
                 <div className="text-2xl font-bold text-primary">{overallScore}%</div>
                 <div className="text-sm text-muted-foreground">Overall Score</div>
               </div>
-              <Button
-                variant="default"
-                onClick={() => setActiveTab('assessments')}
-                iconName="Play"
-                iconPosition="left"
-              >
+              <Button variant="default" onClick={() => setActiveTab('assessments')} iconName="Play" iconPosition="left">
                 Take Assessment
               </Button>
             </div>
           </div>
         </div>
       </div>
-      {/* Navigation Tabs */}
+
       <div className="bg-surface border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-8 overflow-x-auto">
-            {tabs?.map((tab) => (
+            {[
+              { id: 'overview', label: 'Overview', icon: 'LayoutDashboard' },
+              { id: 'assessments', label: 'Assessments', icon: 'ClipboardCheck' },
+              { id: 'progress', label: 'Progress', icon: 'TrendingUp' }
+            ].map((tab) => (
               <button
-                key={tab?.id}
-                onClick={() => setActiveTab(tab?.id)}
-                className={`
-                  flex items-center space-x-2 py-4 px-2 border-b-2 font-medium text-sm transition-quick whitespace-nowrap
-                  ${activeTab === tab?.id
-                    ? 'border-primary text-primary' :'border-transparent text-muted-foreground hover:text-foreground hover:border-muted'
-                  }
-                `}
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center space-x-2 py-4 px-2 border-b-2 font-medium text-sm transition-quick whitespace-nowrap ${activeTab === tab.id ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground hover:border-muted'}`}
               >
-                <Icon name={tab?.icon} size={18} />
-                <span>{tab?.label}</span>
+                <Icon name={tab.icon} size={18} />
+                <span>{tab.label}</span>
               </button>
             ))}
           </div>
         </div>
       </div>
-      {/* Main Content */}
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'overview' && (
           <div className="space-y-8">
-            <div className="space-y-8">
-              <ScoreBreakdown
-                overallScore={overallScore}
-                categoryScores={categoryScores}
-                benchmarkData={benchmarkData}
-              />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {assessments?.slice(0, 4)?.map((assessment) => (
-                  <AssessmentCard
-                    key={assessment?.id}
-                    assessment={assessment}
-                    onStart={handleStartAssessment}
-                    onContinue={handleContinueAssessment}
-                    onViewResults={handleViewResults}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'assessments' && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {assessments?.map((assessment) => (
+            <ScoreBreakdown overallScore={overallScore} categoryScores={categoryScores} benchmarkData={benchmarkData} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {assessments.slice(0, 4).map((assessment) => (
                 <AssessmentCard
-                  key={assessment?.id}
+                  key={assessment.id}
                   assessment={assessment}
                   onStart={handleStartAssessment}
                   onContinue={handleContinueAssessment}
@@ -320,13 +189,22 @@ const PreparednessAssessment = () => {
           </div>
         )}
 
-        {activeTab === 'progress' && (
-          <div className="space-y-8">
-            <ProgressTracker
-              progressData={progressData}
-              milestones={milestones}
-            />
+        {activeTab === 'assessments' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {assessments.map((assessment) => (
+              <AssessmentCard
+                key={assessment.id}
+                assessment={assessment}
+                onStart={handleStartAssessment}
+                onContinue={handleContinueAssessment}
+                onViewResults={handleViewResults}
+              />
+            ))}
           </div>
+        )}
+
+        {activeTab === 'progress' && (
+          <ProgressTracker progressData={progressData} milestones={milestones} />
         )}
       </div>
     </div>
