@@ -4,9 +4,7 @@ import Icon from '../../components/AppIcon';
 import Button from '../../components/ui/Button';
 import AssessmentCard from './components/AssessmentCard';
 import ScoreBreakdown from './components/ScoreBreakdown';
-import RecommendationPanel from './components/RecommendationPanel';
 import ProgressTracker from './components/ProgressTracker';
-import RegionalComparison from './components/RegionalComparison';
 
 const PreparednessAssessment = () => {
   const navigate = useNavigate();
@@ -136,74 +134,6 @@ const PreparednessAssessment = () => {
     }
   ];
 
-  // Mock data for recommendations
-  const recommendations = [
-    {
-      id: 'flood-prep',
-      title: 'Improve Flood Preparedness Knowledge',
-      description: 'Your flood preparedness score is below average. Focus on understanding flood risks and evacuation procedures.',
-      priority: 'high',
-      estimatedTime: '2 hours',
-      impactScore: 15,
-      actions: [
-        {
-          title: 'Complete Flood Safety Module',
-          description: 'Learn about flood risks and safety measures',
-          icon: 'BookOpen',
-          type: 'module',
-          buttonText: 'Start Learning'
-        },
-        {
-          title: 'Practice Evacuation Drill',
-          description: 'Simulate flood evacuation procedures',
-          icon: 'Play',
-          type: 'drill',
-          buttonText: 'Start Drill'
-        }
-      ]
-    },
-    {
-      id: 'communication',
-      title: 'Enhance Emergency Communication Skills',
-      description: 'Strengthen your ability to communicate effectively during emergencies.',
-      priority: 'medium',
-      estimatedTime: '1.5 hours',
-      impactScore: 12,
-      actions: [
-        {
-          title: 'Communication Protocols Module',
-          description: 'Learn emergency communication procedures',
-          icon: 'MessageCircle',
-          type: 'module',
-          buttonText: 'Learn More'
-        }
-      ]
-    },
-    {
-      id: 'first-aid-refresh',
-      title: 'Refresh First Aid Knowledge',
-      description: 'Keep your first aid skills current with regular practice and updates.',
-      priority: 'low',
-      estimatedTime: '1 hour',
-      impactScore: 8,
-      actions: [
-        {
-          title: 'First Aid Refresher',
-          description: 'Update your first aid knowledge',
-          icon: 'Heart',
-          type: 'module',
-          buttonText: 'Refresh Skills'
-        }
-      ]
-    }
-  ];
-
-  const weakAreas = [
-    { id: 'flood', name: 'Flood Preparedness', score: 65 },
-    { id: 'communication', name: 'Emergency Communication', score: 70 },
-    { id: 'evacuation', name: 'Evacuation Procedures', score: 68 }
-  ];
-
   // Mock data for progress tracking
   const progressData = [
     { month: 3, score: 65 }, // April
@@ -246,53 +176,29 @@ const PreparednessAssessment = () => {
       type: 'completion',
       achieved: false,
       progress: 75
-    },
-    {
-      id: 'certificate',
-      title: 'Preparedness Certificate',
-      description: 'Earn your disaster preparedness certificate',
-      type: 'certificate',
-      achieved: false,
-      progress: 85
-    },
-    {
-      id: 'streak-7',
-      title: '7-Day Learning Streak',
-      description: 'Maintain a 7-day learning streak',
-      type: 'streak',
-      achieved: false,
-      progress: 60
     }
+    // {
+    //   id: 'certificate',
+    //   title: 'Preparedness Certificate',
+    //   description: 'Earn your disaster preparedness certificate',
+    //   type: 'certificate',
+    //   achieved: false,
+    //   progress: 85
+    // }
+    // {
+    //   id: 'streak-7',
+    //   title: '7-Day Learning Streak',
+    //   description: 'Maintain a 7-day learning streak',
+    //   type: 'streak',
+    //   achieved: false,
+    //   progress: 60
+    // }
   ];
-
-  // Mock data for regional comparison
-  const regionalData = {
-    overall: 68,
-    categories: {
-      personal: { userScore: 85, average: 72 },
-      emergency: { userScore: 88, average: 65 },
-      knowledge: { userScore: 80, average: 70 },
-      communication: { userScore: 75, average: 68 }
-    },
-    stats: {
-      totalParticipants: '12,450',
-      averageScore: 68,
-      topPerformers: 85,
-      userRank: 1247
-    }
-  };
-
-  const institutionalData = {
-    institutionAverage: 75,
-    stateAverage: 68
-  };
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: 'LayoutDashboard' },
     { id: 'assessments', label: 'Assessments', icon: 'ClipboardCheck' },
-    { id: 'progress', label: 'Progress', icon: 'TrendingUp' },
-    { id: 'recommendations', label: 'Recommendations', icon: 'Target' },
-    { id: 'comparison', label: 'Comparison', icon: 'BarChart3' }
+    { id: 'progress', label: 'Progress', icon: 'TrendingUp' }
   ];
 
   const handleStartAssessment = (assessmentId) => {
@@ -376,8 +282,8 @@ const PreparednessAssessment = () => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'overview' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-8">
+          <div className="space-y-8">
+            <div className="space-y-8">
               <ScoreBreakdown
                 overallScore={overallScore}
                 categoryScores={categoryScores}
@@ -394,12 +300,6 @@ const PreparednessAssessment = () => {
                   />
                 ))}
               </div>
-            </div>
-            <div className="space-y-6">
-              <RecommendationPanel
-                recommendations={recommendations?.slice(0, 2)}
-                weakAreas={weakAreas}
-              />
             </div>
           </div>
         )}
@@ -425,25 +325,6 @@ const PreparednessAssessment = () => {
             <ProgressTracker
               progressData={progressData}
               milestones={milestones}
-            />
-          </div>
-        )}
-
-        {activeTab === 'recommendations' && (
-          <div className="space-y-8">
-            <RecommendationPanel
-              recommendations={recommendations}
-              weakAreas={weakAreas}
-            />
-          </div>
-        )}
-
-        {activeTab === 'comparison' && (
-          <div className="space-y-8">
-            <RegionalComparison
-              userScore={overallScore}
-              regionalData={regionalData}
-              institutionalData={institutionalData}
             />
           </div>
         )}

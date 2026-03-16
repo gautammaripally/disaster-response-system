@@ -17,12 +17,12 @@ const MetricsOverview = ({ metrics = {} }) => {
 
   const metricCards = [
     {
-      title: "Total Students",
+      title: "Total People",
       value: currentMetrics?.totalStudents?.toLocaleString('en-IN'),
       icon: "Users",
       change: "+8.2%",
       changeType: "positive",
-      description: "Enrolled students"
+      description: "Enrolled People"
     },
     {
       title: "Active Users",

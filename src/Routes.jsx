@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Routes as RouterRoutes, Route } from "react-router-dom";
+import { BrowserRouter, Navigate, Routes as RouterRoutes, Route } from "react-router-dom";
 import ScrollToTop from "components/ScrollToTop";
 import ErrorBoundary from "components/ErrorBoundary";
 import NotFound from "pages/NotFound";
@@ -34,6 +34,7 @@ import FireSafetyDosandDonts from './pages/disaster-learning-modules/components/
 import PreparednessAssessment from './pages/preparedness-assessment';
 import VirtualEmergencyDrills from './pages/virtual-emergency-drills';
 import RealTimeAlerts from './pages/real-time-alerts';
+import { ProtectedRoute, PublicOnlyRoute } from './components/auth/ProtectedRoute';
 
 const Routes = () => {
   return (
@@ -41,39 +42,42 @@ const Routes = () => {
       <ErrorBoundary>
       <ScrollToTop />
       <RouterRoutes>
-        {/* Define your route here */}
-        <Route path="/" element={<AdminDashboard />} />
-        <Route path="/" element={<AdminDashboard />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/disaster-learning-modules" element={<DisasterLearningModules />} />
-        <Route path="/disaster-learning-modules/fire-safety" element={<FireSafety />} />
-        <Route path="/disaster-learning-modules/earthquake-safety" element={<EarthquakeDrill />} />
-        <Route path="/disaster-learning-modules/cyclone-awareness" element={<SeekShelterfromStorm />} />
-        <Route path="/disaster-learning-modules/StormOfficialWarnings" element={<OfficialDisasterWarnings />} />
-        <Route path="/disaster-learning-modules/CycloneEyeSafety" element={<EyeofCyclone />} />
-        <Route path="/disaster-learning-modules/CyclonePowerSafety" element={<UnplugElectronicsforCycloneSafety />} />
-        <Route path="/disaster-learning-modules/first-aid-basics" element={<BurnFirstAid />} />
-        <Route path="/disaster-learning-modules/CutsBleedingAid" element={<CutsandBleedingFirstAid />} />
-        <Route path="/disaster-learning-modules/FractureAid" element={<FracturesandBrokenBonesFirstAid />} />
-        <Route path="/disaster-learning-modules/NosebleedAid" element={<NosebleedFirstAid />} />
-        <Route path="/disaster-learning-modules/CprAid" element={<CPRFirstAid />} />
-        <Route path="/disaster-learning-modules/FloodAwareness" element={<FloodAwareness />} />
-        <Route path="/disaster-learning-modules/flood-preparedness" element={<FloodPreparedness />} />
-        <Route path="/disaster-learning-modules/FloodEvacuationSafety" element={<FloodEvacuationSafety />} />
-        <Route path="/disaster-learning-modules/FloodElectrocutionRisk" element={<ElectrocutionRiskinFloods />} />
-        <Route path="/disaster-learning-modules/FloodRescueAid" element={<FloodRescueandAid />} />
-        <Route path="/disaster-learning-modules/EmergencyGetHelp" element={<GettingHelpinanEmergency />} />
-        <Route path="/disaster-learning-modules/fire-safety-training" element={<FireSafetyTraining />} />
-        <Route path="/disaster-learning-modules/EarthquakeCarSafety" element={<EarthquakeCarSafety />} />
-        <Route path="/disaster-learning-modules/EarthquakeWheelchairSafety" element={<EarthquakeSafetyWheelchairUsers />} />
-        <Route path="/disaster-learning-modules/EarthquakeHelpFriends" element={<EarthquakeSafetySteps />} />
-        <Route path="/disaster-learning-modules/EarthquakeDosDonts" element={<EarthquakeDosandDonts />} />
-        <Route path="/disaster-learning-modules/EmergencyTraining" element={<EmergencyPanicExample />} />
-        <Route path="/disaster-learning-modules/FireBlanketTraining" element={<UsingaFireBlanket />} />
-        <Route path="/disaster-learning-modules/FireSafetyDosDonts" element={<FireSafetyDosandDonts />} />
-        <Route path="/preparedness-assessment" element={<PreparednessAssessment />} />
-        <Route path="/virtual-emergency-drills" element={<VirtualEmergencyDrills />} />
-        <Route path="/real-time-alerts" element={<RealTimeAlerts />} />
+        <Route element={<PublicOnlyRoute />}>
+          <Route path="/login" element={<LoginPage />} />
+        </Route>
+        <Route element={<ProtectedRoute />}>
+          <Route path="/" element={<Navigate to="/disaster-learning-modules" replace />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/disaster-learning-modules" element={<DisasterLearningModules />} />
+          <Route path="/disaster-learning-modules/fire-safety" element={<FireSafety />} />
+          <Route path="/disaster-learning-modules/earthquake-safety" element={<EarthquakeDrill />} />
+          <Route path="/disaster-learning-modules/cyclone-awareness" element={<SeekShelterfromStorm />} />
+          <Route path="/disaster-learning-modules/StormOfficialWarnings" element={<OfficialDisasterWarnings />} />
+          <Route path="/disaster-learning-modules/CycloneEyeSafety" element={<EyeofCyclone />} />
+          <Route path="/disaster-learning-modules/CyclonePowerSafety" element={<UnplugElectronicsforCycloneSafety />} />
+          <Route path="/disaster-learning-modules/first-aid-basics" element={<BurnFirstAid />} />
+          <Route path="/disaster-learning-modules/CutsBleedingAid" element={<CutsandBleedingFirstAid />} />
+          <Route path="/disaster-learning-modules/FractureAid" element={<FracturesandBrokenBonesFirstAid />} />
+          <Route path="/disaster-learning-modules/NosebleedAid" element={<NosebleedFirstAid />} />
+          <Route path="/disaster-learning-modules/CprAid" element={<CPRFirstAid />} />
+          <Route path="/disaster-learning-modules/FloodAwareness" element={<FloodAwareness />} />
+          <Route path="/disaster-learning-modules/flood-preparedness" element={<FloodPreparedness />} />
+          <Route path="/disaster-learning-modules/FloodEvacuationSafety" element={<FloodEvacuationSafety />} />
+          <Route path="/disaster-learning-modules/FloodElectrocutionRisk" element={<ElectrocutionRiskinFloods />} />
+          <Route path="/disaster-learning-modules/FloodRescueAid" element={<FloodRescueandAid />} />
+          <Route path="/disaster-learning-modules/EmergencyGetHelp" element={<GettingHelpinanEmergency />} />
+          <Route path="/disaster-learning-modules/fire-safety-training" element={<FireSafetyTraining />} />
+          <Route path="/disaster-learning-modules/EarthquakeCarSafety" element={<EarthquakeCarSafety />} />
+          <Route path="/disaster-learning-modules/EarthquakeWheelchairSafety" element={<EarthquakeSafetyWheelchairUsers />} />
+          <Route path="/disaster-learning-modules/EarthquakeHelpFriends" element={<EarthquakeSafetySteps />} />
+          <Route path="/disaster-learning-modules/EarthquakeDosDonts" element={<EarthquakeDosandDonts />} />
+          <Route path="/disaster-learning-modules/EmergencyTraining" element={<EmergencyPanicExample />} />
+          <Route path="/disaster-learning-modules/FireBlanketTraining" element={<UsingaFireBlanket />} />
+          <Route path="/disaster-learning-modules/FireSafetyDosDonts" element={<FireSafetyDosandDonts />} />
+          <Route path="/preparedness-assessment" element={<PreparednessAssessment />} />
+          <Route path="/virtual-emergency-drills" element={<VirtualEmergencyDrills />} />
+          <Route path="/real-time-alerts" element={<RealTimeAlerts />} />
+        </Route>
         <Route path="*" element={<NotFound />} />
       </RouterRoutes>
       </ErrorBoundary>
