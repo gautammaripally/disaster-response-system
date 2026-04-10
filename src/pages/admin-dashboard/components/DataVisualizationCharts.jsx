@@ -31,14 +31,14 @@ const DataVisualizationCharts = () => {
     { name: 'Communication', value: 198, color: '#7C3AED' }
   ];
 
-  const preparednessScoreData = [
+  /*const preparednessScoreData = [
     { institution: 'DPS Delhi', score: 94, students: 1245 },
     { institution: 'St. Mary\'s', score: 89, students: 987 },
     { institution: 'Modern High', score: 92, students: 1156 },
     { institution: 'Riverside', score: 87, students: 876 },
     { institution: 'Coastal High', score: 91, students: 654 },
     { institution: 'City School', score: 85, students: 1023 }
-  ];
+  ];*/
 
   const regionalRiskData = [
     { region: 'Delhi NCR', earthquake: 7.2, flood: 8.5, fire: 6.8, cyclone: 2.1 },
@@ -174,7 +174,7 @@ const DataVisualizationCharts = () => {
         </div>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Preparedness Scores */}
+        {/* Preparedness Scores 
         <div className="bg-card border border-border rounded-lg p-6 shadow-soft">
           <div className="flex items-center justify-between mb-6">
             <div>
@@ -194,7 +194,7 @@ const DataVisualizationCharts = () => {
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </div>*/}
 
         {/* Regional Risk Assessment */}
         <div className="bg-card border border-border rounded-lg p-6 shadow-soft">
