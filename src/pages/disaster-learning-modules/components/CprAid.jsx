@@ -14,7 +14,7 @@ const CprAid = () => {
 
   return (
     <div style={{
-      maxWidth: 700,
+      maxWidth: 800,
       margin: '40px auto',
       background: '#fff',
       borderRadius: 16,

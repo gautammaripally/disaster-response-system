@@ -19,7 +19,7 @@ const allModules = [
     id: 'earthquake-safety',
     title: 'Earthquake Safety & Preparedness',
     description: 'Learn comprehensive earthquake safety measures including drop, cover, and hold techniques. Understand seismic zones, building safety, emergency kits, and family response planning.',
-    image: 'https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg',
+    image: '/assets/images/image6.png',
     icon: 'Mountain',
     difficulty: 'Beginner',
     estimatedTime: '45 min',
@@ -32,7 +32,7 @@ const allModules = [
     id: 'flood-preparedness',
     title: 'Flood Preparedness & Response',
     description: 'Master flood preparedness strategies for monsoon seasons and urban flooding, including warning systems, evacuation procedures, and community response.',
-    image: 'https://images.pexels.com/photos/1118873/pexels-photo-1118873.jpeg',
+    image: '/assets/images/image11.png',
     icon: 'Waves',
     difficulty: 'Beginner',
     estimatedTime: '35 min',
@@ -45,7 +45,7 @@ const allModules = [
     id: 'fire-safety',
     title: 'Fire Safety & Prevention',
     description: 'Understand fire prevention, alarm response, extinguisher basics, and evacuation procedures for homes, schools, workplaces, and public spaces.',
-    image: 'https://images.pexels.com/photos/266487/pexels-photo-266487.jpeg',
+    image: '/assets/images/image.png',
     icon: 'Flame',
     difficulty: 'Intermediate',
     estimatedTime: '40 min',
@@ -58,7 +58,7 @@ const allModules = [
     id: 'cyclone-awareness',
     title: 'Cyclone Awareness & Safety',
     description: 'Learn cyclone tracking, safety measures, evacuation strategies, and post-cyclone recovery for coastal and inland communities.',
-    image: 'https://images.pexels.com/photos/1446076/pexels-photo-1446076.jpeg',
+    image: '/assets/images/image16.png',
     icon: 'Wind',
     difficulty: 'Intermediate',
     estimatedTime: '50 min',
@@ -71,7 +71,7 @@ const allModules = [
     id: 'first-aid-basics',
     title: 'First Aid & Emergency Medical Response',
     description: 'Build essential first-aid skills including CPR, wound care, trauma response, and coordination with emergency medical services.',
-    image: 'https://images.pexels.com/photos/263402/pexels-photo-263402.jpeg',
+    image: '/assets/images/image21.png',
     icon: 'Heart',
     difficulty: 'Advanced',
     estimatedTime: '60 min',
@@ -197,21 +197,25 @@ const DisasterLearningModules = () => {
 
   const handleModuleOpen = async (moduleId) => {
     const existingProgress = userProgress?.[moduleId];
-    if (!existingProgress?.percentage) {
-      await updateModuleProgress(moduleId, {
-        percentage: 10,
-        completed: false
-      });
-    } else {
-      await updateModuleProgress(moduleId, {
-        percentage: existingProgress.percentage,
-        completed: existingProgress.completed
-      });
+    try {
+      if (!existingProgress?.percentage) {
+        await updateModuleProgress(moduleId, {
+          percentage: 10,
+          completed: false
+        });
+      } else {
+        await updateModuleProgress(moduleId, {
+          percentage: existingProgress.percentage,
+          completed: existingProgress.completed
+        });
+      }
+    } catch (error) {
+      console.error(`Failed to save progress for module "${moduleId}" before navigation:`, error);
     }
   };
 
-  const handleModuleSelect = async (moduleId) => {
-    await handleModuleOpen(moduleId);
+  const handleModuleSelect = (moduleId) => {
+    handleModuleOpen(moduleId);
     navigate(`/disaster-learning-modules/${moduleId}`);
   };
 

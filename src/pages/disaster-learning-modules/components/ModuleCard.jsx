@@ -31,9 +31,11 @@ const ModuleCard = ({ module, userProgress = {}, onOpen = null }) => {
     return 'bg-muted-foreground';
   };
 
-  const handleModuleClick = async () => {
+  const handleModuleClick = () => {
     if (onOpen) {
-      await onOpen(module.id);
+      Promise.resolve(onOpen(module.id)).catch((error) => {
+        console.error(`Failed to open module "${module.id}" cleanly:`, error);
+      });
     }
 
     if (module.id === 'fire-safety') {
