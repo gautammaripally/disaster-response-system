@@ -23,12 +23,32 @@ import {
 } from '../data/appDefaults';
 
 const AppDataContext = createContext(null);
+const PROFILE_STORAGE_PREFIX = 'disastered_profile';
+const PROGRESS_STORAGE_PREFIX = 'disastered_progress';
 
 const defaultProgress = {
   modules: createDefaultModuleProgress(),
   drills: createDefaultDrillProgress(),
   assessments: createDefaultAssessmentProgress()
 };
+
+const getProfileStorageKey = (userId) => `${PROFILE_STORAGE_PREFIX}_${userId}`;
+const getProgressStorageKey = (userId) => `${PROGRESS_STORAGE_PREFIX}_${userId}`;
+
+const readStoredJson = (key) => {
+  try {
+    const rawValue = localStorage.getItem(key);
+    return rawValue ? JSON.parse(rawValue) : null;
+  } catch {
+    return null;
+  }
+};
+
+const mergeStoredProgress = (storedProgress = {}) => ({
+  modules: { ...createDefaultModuleProgress(), ...(storedProgress?.modules || {}) },
+  drills: { ...createDefaultDrillProgress(), ...(storedProgress?.drills || {}) },
+  assessments: { ...createDefaultAssessmentProgress(), ...(storedProgress?.assessments || {}) }
+});
 
 const toDateString = (value) => {
   if (!value) {
@@ -68,6 +88,22 @@ export const AppDataProvider = ({ children }) => {
   const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => {
+    if (!user?.uid || !profile) {
+      return;
+    }
+
+    localStorage.setItem(getProfileStorageKey(user.uid), JSON.stringify(profile));
+  }, [profile, user]);
+
+  useEffect(() => {
+    if (!user?.uid) {
+      return;
+    }
+
+    localStorage.setItem(getProgressStorageKey(user.uid), JSON.stringify(progress));
+  }, [progress, user]);
+
+  useEffect(() => {
     if (!isAuthenticated || !user) {
       setProfile(null);
       setProgress(defaultProgress);
@@ -76,15 +112,21 @@ export const AppDataProvider = ({ children }) => {
       return undefined;
     }
 
+    const storedProfile = readStoredJson(getProfileStorageKey(user.uid));
+    const storedProgress = mergeStoredProgress(readStoredJson(getProgressStorageKey(user.uid)));
+    const localProfile = {
+      ...createDefaultProfile(user),
+      ...(storedProfile || {})
+    };
+
+    setProfile(localProfile);
+    setProgress(storedProgress);
+    setAlerts(sampleAlerts);
+    setDataLoading(false);
+
     if (!db) {
-      setProfile(createDefaultProfile(user));
-      setProgress(defaultProgress);
-      setAlerts(sampleAlerts);
-      setDataLoading(false);
       return undefined;
     }
-
-    setDataLoading(true);
 
     const userRef = doc(db, 'users', user.uid);
     const progressRef = doc(db, 'users', user.uid, 'appData', 'progress');
@@ -95,15 +137,16 @@ export const AppDataProvider = ({ children }) => {
     unsubscribers.push(onSnapshot(userRef, async (snapshot) => {
       if (!snapshot.exists()) {
         const initialProfile = {
-          ...createDefaultProfile(user),
+          ...localProfile,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp()
         };
         await setDoc(userRef, initialProfile, { merge: true });
-        setProfile(createDefaultProfile(user));
+        setProfile(localProfile);
       } else {
         setProfile({
           ...createDefaultProfile(user),
+          ...(storedProfile || {}),
           ...snapshot.data()
         });
       }
@@ -111,17 +154,18 @@ export const AppDataProvider = ({ children }) => {
 
     unsubscribers.push(onSnapshot(progressRef, async (snapshot) => {
       if (!snapshot.exists()) {
-        await setDoc(progressRef, defaultProgress, { merge: true });
-        setProgress(defaultProgress);
+        await setDoc(progressRef, storedProgress, { merge: true });
+        setProgress(storedProgress);
       } else {
         const data = snapshot.data();
-        setProgress({
-          modules: { ...createDefaultModuleProgress(), ...(data?.modules || {}) },
-          drills: { ...createDefaultDrillProgress(), ...(data?.drills || {}) },
-          assessments: { ...createDefaultAssessmentProgress(), ...(data?.assessments || {}) }
-        });
+        setProgress(mergeStoredProgress({
+          ...storedProgress,
+          ...data,
+          modules: { ...(storedProgress?.modules || {}), ...(data?.modules || {}) },
+          drills: { ...(storedProgress?.drills || {}), ...(data?.drills || {}) },
+          assessments: { ...(storedProgress?.assessments || {}), ...(data?.assessments || {}) }
+        }));
       }
-      setDataLoading(false);
     }));
 
     unsubscribers.push(onSnapshot(alertsQuery, (snapshot) => {
@@ -143,15 +187,26 @@ export const AppDataProvider = ({ children }) => {
   const isProfileComplete = missingProfileFields.length === 0;
 
   const saveProfile = async (values) => {
-    if (!user || !db) {
-      setProfile((prev) => ({ ...prev, ...values }));
+    if (!user) {
+      return;
+    }
+
+    const nextProfile = {
+      ...createDefaultProfile(user),
+      ...(profile || {}),
+      ...values,
+      email: user.email || values?.email || ''
+    };
+
+    setProfile(nextProfile);
+
+    if (!db) {
       return;
     }
 
     const userRef = doc(db, 'users', user.uid);
     await setDoc(userRef, {
-      ...values,
-      email: user.email || values?.email || '',
+      ...nextProfile,
       updatedAt: serverTimestamp()
     }, { merge: true });
   };
@@ -162,7 +217,6 @@ export const AppDataProvider = ({ children }) => {
     }
 
     let nextSection = {};
-    let nextValue = {};
 
     setProgress((prev) => {
       nextSection = {
@@ -172,7 +226,6 @@ export const AppDataProvider = ({ children }) => {
           ...payload
         }
       };
-      nextValue = nextSection[itemId];
 
       return {
         ...prev,

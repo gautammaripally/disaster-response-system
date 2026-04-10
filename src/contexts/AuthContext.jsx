@@ -6,21 +6,21 @@ const AuthContext = createContext(null);
 
 const USER_STORAGE_KEY = 'disastered_user';
 
+const getStoredUser = () => {
+  try {
+    const storedUser = localStorage.getItem(USER_STORAGE_KEY);
+    return storedUser ? JSON.parse(storedUser) : null;
+  } catch {
+    return null;
+  }
+};
+
 const normalizeUser = (firebaseUser) => {
   if (!firebaseUser) {
     return null;
   }
 
-  const storedUser = localStorage.getItem(USER_STORAGE_KEY);
-  let parsedStoredUser = null;
-
-  if (storedUser) {
-    try {
-      parsedStoredUser = JSON.parse(storedUser);
-    } catch {
-      parsedStoredUser = null;
-    }
-  }
+  const parsedStoredUser = getStoredUser();
 
   return {
     uid: firebaseUser.uid,
@@ -34,7 +34,7 @@ const normalizeUser = (firebaseUser) => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => getStoredUser());
   const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
