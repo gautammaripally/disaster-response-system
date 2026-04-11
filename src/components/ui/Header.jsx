@@ -41,6 +41,12 @@ const Header = ({ userRole = 'student', alertCount = 0, onMenuToggle }) => {
       description: 'Real-time emergency alerts',
       isEmergency: true,
       badge: alertCount
+    },
+    {
+      label: 'Donations',
+      path: '/donations',
+      icon: 'HeartHandshake',
+      description: 'Support disaster relief efforts'
     }
   ];
 
