@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Icon from '../AppIcon';
 import Button from './Button';
 import { useAuth } from '../../contexts/AuthContext';
+import { getPrimaryNavigationItems } from '../../data/siteStructure';
 
 const Header = ({ userRole = 'student', alertCount = 0, onMenuToggle }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -16,39 +17,14 @@ const Header = ({ userRole = 'student', alertCount = 0, onMenuToggle }) => {
     setHasActiveAlerts(alertCount > 0);
   }, [alertCount]);
 
-  const navigationItems = [
-    {
-      label: 'Learn',
-      path: '/disaster-learning-modules',
-      icon: 'BookOpen',
-      description: 'Access learning modules and assessments',
-      subItems: [
-        { label: 'Learning Modules', path: '/disaster-learning-modules' },
-        { label: 'Virtual Drills', path: '/virtual-emergency-drills' },
-        { label: 'Assessment', path: '/preparedness-assessment' }
-      ]
-    },
-    {
-      label: 'Dashboard',
-      path: '/admin-dashboard',
-      icon: 'LayoutDashboard',
-      description: 'View your personalized dashboard'
-    },
-    {
-      label: 'Alerts',
-      path: '/real-time-alerts',
-      icon: 'AlertTriangle',
-      description: 'Real-time emergency alerts',
-      isEmergency: true,
-      badge: alertCount
-    },
-    {
-      label: 'Donations',
-      path: '/donations',
-      icon: 'HeartHandshake',
-      description: 'Support disaster relief efforts'
-    }
-  ];
+  const navigationItems = getPrimaryNavigationItems().map((item) =>
+    item.path === '/real-time-alerts'
+      ? {
+          ...item,
+          badge: alertCount
+        }
+      : item
+  );
 
   const handleNavigation = (path) => {
     navigate(path);

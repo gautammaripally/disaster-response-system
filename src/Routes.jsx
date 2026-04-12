@@ -37,6 +37,8 @@ import RealTimeAlerts from './pages/real-time-alerts';
 import DonationsPage from './pages/donations';
 import ProfilePage from './pages/profile';
 import OnboardingPage from './pages/onboarding';
+import DisasterGamesPage from './pages/disaster-games';
+import SitemapPage from './pages/sitemap';
 import { ProtectedRoute, PublicOnlyRoute } from './components/auth/ProtectedRoute';
 
 const Routes = () => {
@@ -82,6 +84,8 @@ const Routes = () => {
           <Route path="/preparedness-assessment" element={<PreparednessAssessment />} />
           <Route path="/virtual-emergency-drills" element={<VirtualEmergencyDrills />} />
           <Route path="/real-time-alerts" element={<RealTimeAlerts />} />
+          <Route path="/disaster-games" element={<DisasterGamesPage />} />
+          <Route path="/sitemap" element={<SitemapPage />} />
           <Route path="/donations" element={<DonationsPage />} />
         </Route>
         <Route path="*" element={<NotFound />} />

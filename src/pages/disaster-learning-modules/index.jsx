@@ -8,7 +8,6 @@ import EmergencyAlertIndicator from '../../components/ui/EmergencyAlertIndicator
 import ProgressIndicatorSystem from '../../components/ui/ProgressIndicatorSystem';
 import ModuleCard from './components/ModuleCard';
 import LearningPathway from './components/LearningPathway';
-import GameificationPanel from './components/GameificationPanel';
 import QuickAccessPanel from './components/QuickAccessPanel';
 import FilterAndSearch from './components/FilterAndSearch';
 import { useAppData } from '../../contexts/AppDataContext';
@@ -108,6 +107,10 @@ const DisasterLearningModules = () => {
   });
 
   const userProgress = progress.modules;
+  const totalPreparednessPoints = useMemo(
+    () => Object.values(userProgress).reduce((sum, item) => sum + Math.round((item?.percentage || 0) * 10), 0),
+    [userProgress]
+  );
   const activeAlertCount = alerts.filter((alert) => !(alert?.acknowledgedBy || []).includes(user?.uid)).length;
   const latestAlert = alerts[0]
     ? {
@@ -168,23 +171,6 @@ const DisasterLearningModules = () => {
 
     return filtered;
   }, [filters]);
-
-  const userStats = useMemo(() => {
-    const moduleEntries = Object.values(userProgress);
-    const totalPoints = moduleEntries.reduce((sum, item) => sum + Math.round((item?.percentage || 0) * 10), 0);
-    const completedCount = moduleEntries.filter((item) => item?.completed).length;
-
-    return {
-      totalPoints,
-      level: Math.max(1, Math.floor(totalPoints / 500) + 1),
-      badges: completedCount > 0 ? ['first-module'] : [],
-      streak: completedCount,
-      rank: completedCount >= 3 ? 'Prepared' : 'Getting Started',
-      nextLevelPoints: Math.ceil((totalPoints + 1) / 500) * 500,
-      weeklyGoal: 500,
-      weeklyProgress: Math.min(totalPoints, 500)
-    };
-  }, [userProgress]);
 
   const handleFiltersChange = (newFilters) => {
     setFilters(newFilters);
@@ -274,64 +260,59 @@ const DisasterLearningModules = () => {
               <div className="text-xs text-muted-foreground">In Progress</div>
             </div>
             <div className="bg-card border border-border rounded-lg p-4">
-              <div className="text-2xl font-bold text-card-foreground">{userStats.totalPoints.toLocaleString('en-IN')}</div>
+              <div className="text-2xl font-bold text-card-foreground">{totalPreparednessPoints.toLocaleString('en-IN')}</div>
               <div className="text-xs text-muted-foreground">Preparedness Points</div>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          <div className="lg:col-span-3">
-            {activeView === 'grid' ? (
-              <>
-                <FilterAndSearch onFiltersChange={handleFiltersChange} totalModules={filteredModules.length} />
+        <div className="space-y-8">
+          {activeView === 'grid' ? (
+            <>
+              <FilterAndSearch onFiltersChange={handleFiltersChange} totalModules={filteredModules.length} />
 
-                <div className="mt-8">
-                  {filteredModules.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {filteredModules.map((module) => (
-                        <ModuleCard
-                          key={module.id}
-                          module={module}
-                          userProgress={userProgress}
-                          onOpen={handleModuleOpen}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-12">
-                      <Icon name="Search" size={48} className="text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold text-foreground mb-2">No modules found</h3>
-                      <p className="text-muted-foreground mb-4">Try adjusting your search criteria or filters.</p>
-                      <Button
-                        variant="outline"
-                        onClick={() => setFilters({
-                          searchTerm: '',
-                          difficulty: '',
-                          category: '',
-                          duration: '',
-                          sortBy: 'recommended'
-                        })}
-                      >
-                        Clear all filters
-                      </Button>
-                    </div>
-                  )}
-                </div>
+              <div className="mt-8">
+                {filteredModules.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {filteredModules.map((module) => (
+                      <ModuleCard
+                        key={module.id}
+                        module={module}
+                        userProgress={userProgress}
+                        onOpen={handleModuleOpen}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <Icon name="Search" size={48} className="text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-foreground mb-2">No modules found</h3>
+                    <p className="text-muted-foreground mb-4">Try adjusting your search criteria or filters.</p>
+                    <Button
+                      variant="outline"
+                      onClick={() => setFilters({
+                        searchTerm: '',
+                        difficulty: '',
+                        category: '',
+                        duration: '',
+                        sortBy: 'recommended'
+                      })}
+                    >
+                      Clear all filters
+                    </Button>
+                  </div>
+                )}
+              </div>
 
-                <div className="mt-8">
-                  <ProgressIndicatorSystem userProgress={userProgress} horizontal />
-                </div>
-              </>
-            ) : (
-              <LearningPathway userProgress={userProgress} onModuleSelect={handleModuleSelect} />
-            )}
-          </div>
+              <QuickAccessPanel bookmarkedContent={bookmarkedContent} />
 
-          <div className="lg:col-span-1 space-y-6">
-            <QuickAccessPanel bookmarkedContent={bookmarkedContent} />
-            <GameificationPanel userStats={userStats} />
-          </div>
+              <div>
+                <ProgressIndicatorSystem userProgress={userProgress} horizontal />
+              </div>
+            </>
+          ) : (
+            <LearningPathway userProgress={userProgress} onModuleSelect={handleModuleSelect} />
+          )}
         </div>
       </div>
     </div>

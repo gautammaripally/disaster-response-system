@@ -2,12 +2,13 @@ import React from 'react';
 import Icon from '../../../components/AppIcon';
 import Button from '../../../components/ui/Button';
 
-const AssessmentCard = ({ 
-  assessment, 
-  onStart, 
-  onContinue, 
+const AssessmentCard = ({
+  assessment,
+  onStart,
+  onContinue,
   onViewResults,
-  className = '' 
+  onCardClick,
+  className = ''
 }) => {
   const getStatusColor = () => {
     switch (assessment?.status) {
@@ -54,45 +55,68 @@ const AssessmentCard = ({
         return (
           <Button
             variant="outline"
-            onClick={() => onViewResults(assessment?.id)}
+            onClick={(event) => {
+              event.stopPropagation();
+              onViewResults(assessment?.id);
+            }}
             iconName="Eye"
             iconPosition="left"
-          >View Results
-                      </Button>
+          >
+            View Results
+          </Button>
         );
       case 'in-progress':
         return (
           <Button
             variant="default"
-            onClick={() => onContinue(assessment?.id)}
+            onClick={(event) => {
+              event.stopPropagation();
+              onContinue(assessment?.id);
+            }}
             iconName="Play"
             iconPosition="left"
-          >Continue
-                      </Button>
+          >
+            Continue
+          </Button>
         );
       default:
         return (
           <Button
             variant="default"
-            onClick={() => onStart(assessment?.id)}
+            onClick={(event) => {
+              event.stopPropagation();
+              onStart(assessment?.id);
+            }}
             iconName="Play"
             iconPosition="left"
-          >Start Assessment
-                      </Button>
+          >
+            Start Assessment
+          </Button>
         );
     }
   };
 
   return (
-    <div className={`bg-card border border-border rounded-lg p-6 hover:shadow-soft transition-smooth ${className}`}>
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => onCardClick?.(assessment)}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onCardClick?.(assessment);
+        }
+      }}
+      className={`bg-card border border-border rounded-lg p-6 hover:shadow-soft transition-smooth cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30 ${className}`}
+    >
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center space-x-3">
           <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
             assessment?.status === 'completed' ? 'bg-success/10' : 'bg-primary/10'
           }`}>
-            <Icon 
-              name={assessment?.icon} 
-              size={24} 
+            <Icon
+              name={assessment?.icon}
+              size={24}
               color={assessment?.status === 'completed' ? 'var(--color-success)' : 'var(--color-primary)'}
             />
           </div>
@@ -106,6 +130,7 @@ const AssessmentCard = ({
           <span className="text-sm font-medium capitalize">{assessment?.status?.replace('-', ' ')}</span>
         </div>
       </div>
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
         <div className="text-center">
           <div className="text-lg font-bold text-card-foreground">{assessment?.questions}</div>
@@ -131,6 +156,7 @@ const AssessmentCard = ({
           )}
         </div>
       </div>
+
       {assessment?.progress > 0 && assessment?.status === 'in-progress' && (
         <div className="mb-4">
           <div className="flex justify-between text-sm mb-2">
@@ -138,15 +164,16 @@ const AssessmentCard = ({
             <span className="text-card-foreground font-medium">{assessment?.progress}%</span>
           </div>
           <div className="w-full bg-muted rounded-full h-2">
-            <div 
+            <div
               className="h-2 bg-primary rounded-full transition-all duration-300"
               style={{ width: `${assessment?.progress}%` }}
             />
           </div>
         </div>
       )}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
           <div className="flex items-center space-x-1">
             <Icon name="Users" size={16} />
             <span>{assessment?.attempts} attempts</span>
