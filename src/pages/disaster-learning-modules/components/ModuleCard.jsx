@@ -7,9 +7,7 @@ import Button from '../../../components/ui/Button';
 const ModuleCard = ({ module, userProgress = {}, onOpen = null }) => {
   const navigate = useNavigate();
   
-  const progress = userProgress?.[module.id]?.percentage || 0;
   const isCompleted = userProgress?.[module.id]?.completed || false;
-  const lastAccessed = userProgress?.[module.id]?.lastAccessed;
 
   const getDifficultyColor = (difficulty) => {
     switch (difficulty) {
@@ -22,13 +20,6 @@ const ModuleCard = ({ module, userProgress = {}, onOpen = null }) => {
       default:
         return 'bg-muted text-muted-foreground border-border';
     }
-  };
-
-  const getProgressColor = (percentage) => {
-    if (percentage >= 100) return 'bg-success';
-    if (percentage >= 75) return 'bg-primary';
-    if (percentage >= 50) return 'bg-warning';
-    return 'bg-muted-foreground';
   };
 
   const handleModuleClick = () => {
@@ -48,7 +39,7 @@ const ModuleCard = ({ module, userProgress = {}, onOpen = null }) => {
   };
 
   return (
-    <div className="bg-card border border-border rounded-lg shadow-soft hover:shadow-elevated transition-smooth overflow-hidden group">
+    <div className="bg-card border border-border rounded-lg shadow-soft hover:shadow-elevated transition-smooth overflow-hidden group h-full flex flex-col">
       {/* Module Image */}
       <div className="relative h-48 overflow-hidden">
         <Image
@@ -58,39 +49,6 @@ const ModuleCard = ({ module, userProgress = {}, onOpen = null }) => {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
         
-        {/* Progress Overlay */}
-        {progress > 0 && (
-          <div className="absolute top-4 right-4">
-            <div className="w-12 h-12 bg-surface/90 rounded-full flex items-center justify-center">
-              <div className="relative w-10 h-10">
-                <svg className="w-10 h-10 transform -rotate-90" viewBox="0 0 36 36">
-                  <path
-                    d="m18,2.0845 a 15.9155,15.9155 0 0,1 0,31.831 a 15.9155,15.9155 0 0,1 0,-31.831"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeDasharray="100, 100"
-                    className="text-muted"
-                  />
-                  <path
-                    d="m18,2.0845 a 15.9155,15.9155 0 0,1 0,31.831 a 15.9155,15.9155 0 0,1 0,-31.831"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeDasharray={`${progress}, 100`}
-                    className={getProgressColor(progress)}
-                  />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-xs font-medium text-foreground">
-                    {Math.round(progress)}%
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Completion Badge */}
         {isCompleted && (
           <div className="absolute top-4 left-4">
@@ -109,7 +67,7 @@ const ModuleCard = ({ module, userProgress = {}, onOpen = null }) => {
         </div>
       </div>
       {/* Module Content */}
-      <div className="p-6">
+      <div className="p-6 flex flex-1 flex-col">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
@@ -134,7 +92,7 @@ const ModuleCard = ({ module, userProgress = {}, onOpen = null }) => {
         </p>
 
         {/* Module Stats */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4 text-xs text-muted-foreground">
             <div className="flex items-center space-x-1">
               <Icon name="Users" size={12} />
@@ -145,35 +103,14 @@ const ModuleCard = ({ module, userProgress = {}, onOpen = null }) => {
               <span>{module.rating}</span>
             </div>
           </div>
-          {lastAccessed && (
-            <div className="text-xs text-muted-foreground">
-              Last accessed: {new Date(lastAccessed)?.toLocaleDateString('en-IN')}
-            </div>
-          )}
         </div>
-
-        {/* Progress Bar */}
-        {progress > 0 && (
-          <div className="mb-4">
-            <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-              <span>Progress</span>
-              <span>{Math.round(progress)}% complete</span>
-            </div>
-            <div className="w-full bg-muted rounded-full h-2">
-              <div 
-                className={`h-2 rounded-full transition-all duration-300 ${getProgressColor(progress)}`}
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-          </div>
-        )}
 
         {/* Action Button */}
         <Button
           variant="default"
           fullWidth
           onClick={handleModuleClick}
-          className="group-hover:shadow-soft transition-smooth"
+          className="group-hover:shadow-soft transition-smooth mt-auto"
         >
           
             <>

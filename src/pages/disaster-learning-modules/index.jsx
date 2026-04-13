@@ -5,7 +5,6 @@ import Icon from '../../components/AppIcon';
 import Button from '../../components/ui/Button';
 import Header from '../../components/ui/Header';
 import EmergencyAlertIndicator from '../../components/ui/EmergencyAlertIndicator';
-import ProgressIndicatorSystem from '../../components/ui/ProgressIndicatorSystem';
 import ModuleCard from './components/ModuleCard';
 import LearningPathway from './components/LearningPathway';
 import QuickAccessPanel from './components/QuickAccessPanel';
@@ -305,10 +304,6 @@ const DisasterLearningModules = () => {
               </div>
 
               <QuickAccessPanel bookmarkedContent={bookmarkedContent} />
-
-              <div>
-                <ProgressIndicatorSystem userProgress={userProgress} horizontal />
-              </div>
             </>
           ) : (
             <LearningPathway userProgress={userProgress} onModuleSelect={handleModuleSelect} />
