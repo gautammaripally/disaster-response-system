@@ -111,6 +111,15 @@ const RealTimeAlerts = () => {
           </div>
         </div>
 
+        <div className="flex flex-wrap gap-2">
+          <Button variant="default" onClick={() => navigate('/real-time-alerts')} iconName="AlertTriangle" iconPosition="left">
+            Alerts Feed
+          </Button>
+          <Button variant="outline" onClick={() => navigate('/real-time-alerts/rescue-shelters')} iconName="HousePlus" iconPosition="left">
+            Rescue Shelters
+          </Button>
+        </div>
+
         {criticalAlerts.length > 0 && (
           <div className="bg-error/10 border-2 border-error rounded-lg p-4 animate-alert-pulse">
             <div className="flex items-center space-x-3">

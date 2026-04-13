@@ -34,6 +34,7 @@ import FireSafetyDosandDonts from './pages/disaster-learning-modules/components/
 import PreparednessAssessment from './pages/preparedness-assessment';
 import VirtualEmergencyDrills from './pages/virtual-emergency-drills';
 import RealTimeAlerts from './pages/real-time-alerts';
+import RescueSheltersPage from './pages/real-time-alerts/rescue-shelters';
 import DonationsPage from './pages/donations';
 import ProfilePage from './pages/profile';
 import OnboardingPage from './pages/onboarding';
@@ -84,6 +85,7 @@ const Routes = () => {
           <Route path="/preparedness-assessment" element={<PreparednessAssessment />} />
           <Route path="/virtual-emergency-drills" element={<VirtualEmergencyDrills />} />
           <Route path="/real-time-alerts" element={<RealTimeAlerts />} />
+          <Route path="/real-time-alerts/rescue-shelters" element={<RescueSheltersPage />} />
           <Route path="/disaster-games" element={<DisasterGamesPage />} />
           <Route path="/sitemap" element={<SitemapPage />} />
           <Route path="/donations" element={<DonationsPage />} />

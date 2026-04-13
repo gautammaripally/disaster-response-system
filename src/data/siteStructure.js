@@ -266,7 +266,26 @@ export const siteStructure = [
         icon: 'AlertTriangle',
         description: 'Real-time emergency alerts and updates.',
         inPrimaryNav: true,
-        isEmergency: true
+        isEmergency: true,
+        isDropdownNav: true,
+        children: [
+          {
+            id: 'alerts-overview',
+            title: 'Active Alerts',
+            path: '/real-time-alerts',
+            icon: 'BellRing',
+            description: 'Track active and acknowledged emergency alerts.',
+            inDropdownNav: true
+          },
+          {
+            id: 'rescue-shelters',
+            title: 'Rescue Shelters',
+            path: '/real-time-alerts/rescue-shelters',
+            icon: 'HousePlus',
+            description: 'Find rescue shelters and camps linked to active alerts.',
+            inDropdownNav: true
+          }
+        ]
       },
       {
         id: 'donations',
